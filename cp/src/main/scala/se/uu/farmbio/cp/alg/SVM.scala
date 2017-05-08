@@ -23,7 +23,7 @@ private object SVM {
     //Train SVM with LBFGS
     val numFeatures = input.take(1)(0).features.size
     val training = input.map(x => (x.label, MLUtils.appendBias(x.features))).cache()
-    val initialWeightsWithIntercept = Vectors.dense(new Array[Double](numFeatures + 1))
+    val initialWeightsWithIntercept = Vectors.dense(new Array[Double](numFeatures + 1)).toSparse
     val (weightsWithIntercept, _) = LBFGS.runLBFGS(
       training,
       new HingeGradient(),
@@ -36,7 +36,7 @@ private object SVM {
 
     //Create the model using the weights
     val model = new SVMModel(
-      Vectors.dense(weightsWithIntercept.toArray.slice(0, weightsWithIntercept.size - 1)),
+      Vectors.dense(weightsWithIntercept.toArray.slice(0, weightsWithIntercept.size - 1)).toSparse,
       weightsWithIntercept(weightsWithIntercept.size - 1))
 
     //Return raw score predictor
